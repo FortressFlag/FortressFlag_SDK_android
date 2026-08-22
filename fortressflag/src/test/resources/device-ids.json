@@ -1,0 +1,19 @@
+{
+  "description": "Cross-platform device-identity format vectors. An SDK's validator must accept every entry in `accept` and reject every entry in `reject`, regardless of which prefix that build mints — a stored dev_ identity read in a simulator/emulator build is kept (identity stability wins over prefix purity). Source: FortressFlag_SDK_ios IdentityAndCacheTests, published here per ADR-0013.",
+  "accept": [
+    "dev_AAAAAAAAAAAAAAAAAAAAAA",
+    "sim_AAAAAAAAAAAAAAAAAAAAAA"
+  ],
+  "reject": [
+    "",
+    "AAAAAAAAAAAAAAAAAAAAAA",
+    "dev_",
+    "dev_short",
+    "dev_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "dev_!!!!!!!!!!!!!!!!!!!!!!",
+    "device_AAAAAAAAAAAAAAAAAAAAAA",
+    "sim_",
+    "sim_short",
+    "xxx_AAAAAAAAAAAAAAAAAAAAAA"
+  ]
+}

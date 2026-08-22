@@ -1,0 +1,34 @@
+# Automated dependency updates.
+#
+# SOC 2 (CC7.1) asks for a *process* that finds and remediates vulnerable components, not just a
+# scanner that reports them.
+#
+# Two ecosystems: the workflow's actions, and the Gradle build. Note that the SDK's *runtime*
+# dependency policy is kotlinx-coroutines only (ADR-0013) — everything else Gradle resolves is
+# build- or test-scoped. Founding §8.1 wants SDKs dependency-light: a client SDK embedded in
+# someone else's app is the worst place in the system to take on supply-chain surface, so the
+# right response to most "add a library" updates here is still "why do we have this library".
+
+version: 2
+updates:
+  # The workflow itself is a dependency. A compromised or abandoned action runs with our token —
+  # and in a repository that will eventually sign and publish a distributable artifact.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies, ci]
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies]
+    groups:
+      gradle:
+        patterns: ["*"]

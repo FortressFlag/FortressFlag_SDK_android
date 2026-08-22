@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The SDK's only permission. Nothing else: no storage, no identifiers, no location -
+         the device identity is minted from a CSPRNG, never read from the platform
+         (contracts/device-identity.md in FortressFlag_Standards). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- usesCleartextTraffic: the example app talks to the local dev backend over plain HTTP
+         (the emulator's host alias 10.0.2.2). The SDK itself refuses plaintext except loopback
+         under allowsInsecureLocalTransport; this manifest flag is the OS-level half of that
+         local-dev story and ships in the EXAMPLE ONLY, never in the library. -->
+    <application
+        android:label="FortressFlag Example"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
