@@ -37,9 +37,9 @@ internal class SignedEnvelope(
     /** Unpadded base64url of the payload JSON. */
     val payload: String,
     /**
-     * `ed25519:<keyID>:<unpadded base64url signature>`. Absent only when the server is not
-     * signing (true of every real response until backend M4), which
-     * `SignaturePolicy.Required` rejects.
+     * `ed25519:<keyID>:<unpadded base64url signature>`. Absent only from a local development
+     * backend with no signing key configured (ADR-0025), which `SignaturePolicy.Required`
+     * rejects.
      */
     val sig: String?,
 )

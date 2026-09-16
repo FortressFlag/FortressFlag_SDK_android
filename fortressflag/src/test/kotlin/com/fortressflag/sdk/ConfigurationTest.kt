@@ -82,8 +82,18 @@ class ConfigurationTest {
 
     @Test
     fun requiredPolicyWithEmptyTrustStoreIsReported() {
-        val problems = config(policy = SignaturePolicy.Required(TrustedKeys.FORTRESSFLAG_PRODUCTION)).validate()
+        val problems = config(policy = SignaturePolicy.Required(TrustedKeys(emptyMap()))).validate()
         assertTrue(problems.contains(ConfigurationProblem.SignatureRequiredButNoTrustedKeys))
+    }
+
+    @Test
+    fun theProductionTrustStoreHoldsOneThirtyTwoByteKey() {
+        // ADR-0025: prod-2026-09-k1, raw 32 bytes. The value itself is pinned by the Docs page
+        // and the ADR, not here — a rotation must be able to change it without a test edit.
+        val keys = TrustedKeys.FORTRESSFLAG_PRODUCTION.keysById
+        assertEquals(setOf("prod-2026-09-k1"), keys.keys)
+        assertEquals(32, keys.getValue("prod-2026-09-k1").size)
+        assertTrue(config(policy = SignaturePolicy.Required(TrustedKeys.FORTRESSFLAG_PRODUCTION)).validate().isEmpty())
     }
 
     @Test

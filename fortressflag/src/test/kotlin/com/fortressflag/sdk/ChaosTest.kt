@@ -24,10 +24,8 @@ import org.junit.Test
  * Every other test checks that a specific thing works. These check that nothing breaks when
  * everything is wrong at once — which is the state a real device is in during an outage, on a
  * hotel Wi-Fi captive portal, or in the hands of someone actively attacking us. Ported from
- * the iOS SDK's ChaosTests; the signature-hostile entries differ only in that Android's
- * verification primitive is the fail-closed stub (ADR-0013), so "signed by an attacker" and
- * "signed correctly" are equally rejected under a Required policy — which is the safe half of
- * the iOS matrix, and the half that exists before backend M4.
+ * the iOS SDK's ChaosTests. The signature-hostile entries exercise the reject half of the
+ * matrix; correctly signed envelopes are pinned by SigningVectorsTest (ADR-0025).
  */
 class ChaosTest {
     private val now = EnvelopeFixture.NOW
@@ -201,10 +199,8 @@ class ChaosTest {
 
     @Test
     fun signatureHostileEnvelopesAllRejectUnderRequired() {
-        // Under Required with a trust store, every signature shape must reject-to-cache:
-        // absent, malformed, unknown key, wrong algorithm — and, until M4 supplies the
-        // primitive, even a plausible one (the stub can only reject; it can never accept a
-        // forgery).
+        // Under Required with a trust store, every hostile signature shape must
+        // reject-to-cache: absent, malformed, unknown key, wrong algorithm, wrong bytes.
         val good = EnvelopeFixture.envelope()
         val cache = SeededCache(good)
         val store = SnapshotStore()

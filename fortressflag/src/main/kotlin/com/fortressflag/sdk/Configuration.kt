@@ -87,16 +87,21 @@ public class TrustedKeys(
 
     public companion object {
         /**
-         * The keys FortressFlag signs production payloads with.
-         *
-         * Empty until the backend's signing service (roadmap M4) exists — its algorithm ADR
-         * is also what decides the verification primitive here, which is why this SDK ships
-         * the policy and the envelope plumbing but no crypto (backend ADR-0013). Empty means
-         * [SignaturePolicy.Required] rejects everything, which is the correct fail-closed
-         * behaviour for an unverifiable payload — during local development use
-         * [SignaturePolicy.Disabled] explicitly.
+         * The keys FortressFlag signs production payloads with (backend ADR-0025): raw 32-byte
+         * Ed25519 public keys by key ID, production environment only. A build that targets
+         * staging supplies the staging key explicitly; local development against an unsigned
+         * backend uses [SignaturePolicy.Disabled] explicitly. Rotation adds key N+1 here one
+         * release before the backend switches to it, and retires N one release after.
          */
-        public val FORTRESSFLAG_PRODUCTION: TrustedKeys = TrustedKeys(emptyMap())
+        public val FORTRESSFLAG_PRODUCTION: TrustedKeys =
+            TrustedKeys(
+                mapOf(
+                    // prod-2026-09-k1, base64url EaEF8MHNu3onHxemTg3-OcrKrq7ODsZIVEp-IVV2ojg (ADR-0025, minted 2026-09-16)
+                    "prod-2026-09-k1" to hexBytes("11a105f0c1cdbb7a271f17a64e0dfe39cacaaeaece0ec648544a7e215576a238"),
+                ),
+            )
+
+        private fun hexBytes(hex: String): ByteArray = ByteArray(hex.length / 2) { hex.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
     }
 }
 
