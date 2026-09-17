@@ -135,15 +135,8 @@ internal object EnvelopeVerifier {
     }
 
     /**
-     * The signature *plumbing*, with the crypto primitive deliberately absent (backend
-     * ADR-0013): the backend's signing milestone (M4) has not shipped, its algorithm ADR
-     * (P-256 vs Ed25519ph) is open, and Android's platform Ed25519 arrives above this SDK's
-     * minSdk. So: a missing signature under Required is rejected (fail closed — the iOS
-     * behaviour, byte for byte), the `algorithm:keyID:signature` splitting and trust-store
-     * lookup are real, and a signature that *survives* those checks is still rejected as
-     * [EnvelopeRejection.BadSignature] because no primitive exists to accept it. When M4
-     * lands, its ADR decides the primitive and this is where it goes — with a real trust
-     * store, this stub can reject valid payloads but can never accept a forged one.
+     * Pure Ed25519 over the exact payload bytes (backend ADR-0025), in the iOS verifier's
+     * order: signature before parse, so no field is read before it is trusted.
      */
     private fun checkSignature(
         sig: String?,
@@ -152,19 +145,22 @@ internal object EnvelopeVerifier {
     ): EnvelopeRejection? {
         if (sig == null) return EnvelopeRejection.MissingSignature
 
-        // limit = 3 so a key ID may contain a colon later without a breaking parse change.
+        // limit = 3: the SIGNATURE may carry extra colons, the key ID never can — the backend
+        // refuses to load one (ADR-0025 grammar `[a-z0-9-]+`).
         val parts = sig.split(":", limit = 3)
         if (parts.size != 3) return EnvelopeRejection.MalformedSignature
 
         val algorithm = parts[0]
         val keyId = parts[1]
         if (algorithm != "ed25519") return EnvelopeRejection.UnsupportedSignatureAlgorithm(algorithm)
-        if (Base64Url.decode(parts[2]) == null) return EnvelopeRejection.MalformedSignature
-        if (!trustedKeys.keysById.containsKey(keyId)) return EnvelopeRejection.UnknownKeyId(keyId)
+        val signature = Base64Url.decode(parts[2]) ?: return EnvelopeRejection.MalformedSignature
+        val key = trustedKeys.keysById[keyId] ?: return EnvelopeRejection.UnknownKeyId(keyId)
+        // A malformed key in our own trust store is "cannot verify with this key", not a hard
+        // failure, so one bad entry does not disable a rotation set (the iOS rule).
+        if (key.size != Ed25519.PUBLIC_KEY_SIZE) return EnvelopeRejection.UnknownKeyId(keyId)
 
-        // The primitive gap, made explicit. payloadBytes is deliberately unused beyond this
-        // point until M4 supplies the algorithm.
-        return EnvelopeRejection.BadSignature
+        if (!Ed25519.verify(key, payloadBytes, signature)) return EnvelopeRejection.BadSignature
+        return null
     }
 
     /**

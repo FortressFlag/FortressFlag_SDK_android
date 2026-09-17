@@ -84,8 +84,7 @@ class EnvelopeVerifierTest {
 
     @Test
     fun unsignedUnderRequiredIsRejected() {
-        // The `sig` field is absent in every real response until backend M4 ships. Required
-        // + unsigned → rejected-to-cache is iOS behaviour, byte for byte: fail closed.
+        // Required + unsigned → rejected-to-cache is iOS behaviour, byte for byte: fail closed.
         val result =
             verify(
                 EnvelopeFixture.envelope(),
@@ -105,10 +104,9 @@ class EnvelopeVerifierTest {
     }
 
     @Test
-    fun aTrustedKeyStillRejectsUntilM4SuppliesThePrimitive() {
-        // The plumbing without the crypto (ADR-0013): with a trust store entry present the
-        // stub must REJECT, never accept — a stub that can reject valid payloads is safe, a
-        // stub that could accept forged ones is not.
+    fun aTrustedKeyWithAnUnverifiableSignatureIsBadSignature() {
+        // A three-byte "signature" against a real trust-store entry: not malformed (it is
+        // base64url), just wrong — the iOS classification. Real signatures: SigningVectorsTest.
         val result =
             verify(
                 EnvelopeFixture.envelope(sig = "ed25519:k1:AAAA"),
