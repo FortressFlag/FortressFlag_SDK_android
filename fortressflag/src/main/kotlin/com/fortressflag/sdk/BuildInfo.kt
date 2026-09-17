@@ -4,5 +4,5 @@ package com.fortressflag.sdk
 // server-side today — telemetry for a future, not something behavior may assume the server
 // sees. Bumped by release PRs only.
 public object BuildInfo {
-    public const val VERSION: String = "0.1.0"
+    public const val VERSION: String = "1.0.0"
 }

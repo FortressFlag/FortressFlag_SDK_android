@@ -5,8 +5,14 @@ flags for this one device, and is built so a flagging outage can never take your
 every read falls back to the last value this device actually saw, then to `false` — never an
 exception, never a crash.
 
-**Status: v0.1.0, pre-release.** No Maven Central / registry publication yet; consume as a
-source dependency or included build.
+> **ADR-nnnn** refers to FortressFlag's internal architecture decision records. The public
+> contract every SDK implements is `FortressFlag_Standards`; decision records are not published.
+
+**v1.0.0 — first public release.** The public API, the fallback cascade, device identity, the
+durable cache, transport and Ed25519 signature verification (the production public key is built
+in) are complete and tested against contract v1 and v2. The SDK is distributed from this
+repository — consume it as a source dependency or Gradle included build; Maven Central / registry
+publication is a later step.
 
 ## Quickstart
 
